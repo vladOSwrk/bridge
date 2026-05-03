@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Перехід до біржі...</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #121212; color: white; margin: 0; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .container { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loader"></div>
+        <p>Відкриваємо застосунок...</p>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const ex = params.get('ex'); // Біржа: binance, bybit, kucoin, gate
+            const pair = params.get('pair'); // Пара: BTCUSDT
+
+            if (!ex || !pair) {
+                document.body.innerHTML = "Помилка: відсутні параметри";
+                return;
+            }
+
+            // Форматуємо пари під різні біржі
+            const schemes = {
+                'binance': `bnc://app.binance.com/en/trade/${pair.replace('USDT', '_USDT')}`,
+                'bybit': `bybitapp://open/spot/trade?symbol=${pair}`,
+                'kucoin': `kucoin://trade/${pair.replace('USDT', '-USDT')}`,
+                'gate': `gateio://trade/${pair.replace('USDT', '_USDT')}`,
+                'bitget': `bitget://spotTrade?symbol=${pair}`
+            };
+
+            const webLinks = {
+                'binance': `https://www.binance.com/en/trade/${pair.replace('USDT', '_USDT')}`,
+                'bybit': `https://www.bybit.com/en-US/trade/spot/${pair}`,
+                'kucoin': `https://www.kucoin.com/trade/${pair.replace('USDT', '-USDT')}`,
+                'gate': `https://www.gate.io/trade/${pair.replace('USDT', '_USDT')}`
+            };
+
+            const deepLink = schemes[ex.toLowerCase()];
+            const webLink = webLinks[ex.toLowerCase()];
+
+            if (deepLink) {
+                // Спроба відкрити додаток
+                window.location.replace(deepLink);
+
+                // Якщо додаток не відкрився протягом 2 секунд (наприклад, не встановлений), відкриваємо веб-версію
+                setTimeout(() => {
+                    window.location.replace(webLink);
+                }, 2000);
+            }
+        };
+    </script>
+</body>
+</html>
